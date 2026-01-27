@@ -1,0 +1,8 @@
+{
+  "name": "Football Shooting Challenge",
+  "description": "A branded mobile-first football shooting game where players select teams, shoot for goals within a time limit, and win prizes.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ]
+}
