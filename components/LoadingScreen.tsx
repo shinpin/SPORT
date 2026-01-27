@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Play } from 'lucide-react';
+import { Zap, Play, Trophy, Star } from 'lucide-react';
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -12,7 +12,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // 模擬載入過程
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
@@ -39,17 +38,25 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
       </div>
 
       {/* 載入內容 */}
-      <div className="relative z-10 w-full max-w-xs flex flex-col items-center mt-auto pb-24">
+      <div className="relative z-10 w-full max-w-xs flex flex-col items-center mt-auto pb-24 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-8"
+          className="flex flex-col items-center mb-10 text-center"
         >
-          <h1 className="text-5xl font-black italic tracking-tighter text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] mb-2">
-            足球
+          {/* 從 StartScreen 移過來的品牌元素 */}
+          <div className="mb-4">
+            <Trophy className="w-16 h-16 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
+          </div>
+          
+          <h1 className="text-5xl font-black italic tracking-tighter text-white uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] mb-4 leading-none">
+            踢球PK大挑戰
           </h1>
-          <div className="bg-blue-600 text-white px-4 py-1 rounded-full text-[10px] font-black tracking-[0.4em] uppercase shadow-lg">
-            2025 挑戰賽
+
+          <div className="flex gap-2">
+            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
+            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse delay-75" />
+            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse delay-150" />
           </div>
         </motion.div>
 
@@ -62,7 +69,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                 exit={{ opacity: 0 }}
                 className="w-full"
               >
-                {/* 進度條 */}
                 <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/5 mb-4">
                   <motion.div 
                     className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-white"
@@ -88,7 +94,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
                 onClick={onComplete}
                 className="group relative w-full h-16 bg-white text-black rounded-2xl font-black italic text-xl uppercase flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.3)] overflow-hidden"
               >
-                {/* 按鈕掃光 */}
                 <motion.div 
                   animate={{ left: ['-100%', '200%'] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
@@ -104,7 +109,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
           </AnimatePresence>
         </div>
 
-        {/* 底部裝飾 */}
         <div className="mt-8 flex items-center gap-2 opacity-30">
           <Zap className="w-3 h-3 text-yellow-400" />
           <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white">
@@ -114,7 +118,6 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
         </div>
       </div>
 
-      {/* 掃光特效 */}
       <motion.div 
         animate={{ left: ['-100%', '200%'] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}

@@ -1,7 +1,7 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Zap, ListOrdered, ChevronLeft, ChevronRight, Hand } from 'lucide-react';
+import { Trophy, Zap, ListOrdered, ChevronLeft, ChevronRight, Hand, Star, Maximize2, Minimize2, Smartphone, RotateCcw } from 'lucide-react';
 import { TEAMS } from '../constants';
 import { Team } from '../types';
 
@@ -14,8 +14,27 @@ interface StartScreenProps {
 const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, onOpenBackstage }) => {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const lastClickTime = useRef<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleVersionClick = () => {
     const now = Date.now();
@@ -39,8 +58,24 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, o
   };
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center bg-black overflow-hidden">
-      {/* 版本標示與隱藏入口 */}
+    <div className="relative h-full w-full flex flex-col items-center bg-black overflow-y-auto no-scrollbar">
+      {/* 頂部快捷工具欄 */}
+      <div className="absolute top-0 left-0 right-0 z-[60] flex flex-col items-center pt-4 pointer-events-none">
+        <div className="flex items-center gap-6 px-6 py-2 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 pointer-events-auto">
+          <Smartphone className="w-4 h-4 text-white/40" />
+          <RotateCcw className="w-4 h-4 text-white/40" />
+          <Maximize2 className="w-4 h-4 text-white/40" />
+        </div>
+        
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleFullscreen}
+          className="mt-4 px-8 py-2.5 bg-white text-black rounded-full font-bold shadow-2xl flex items-center gap-2 pointer-events-auto active:bg-gray-200 transition-colors"
+        >
+          <span className="text-sm tracking-tight">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
+        </motion.button>
+      </div>
+
       <div 
         onClick={handleVersionClick}
         className="absolute top-2 left-4 z-[100] text-[10px] font-mono text-white/30 p-2 cursor-pointer active:text-white/60 select-none"
@@ -48,7 +83,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, o
         footballdemo-v01.0126
       </div>
 
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 h-[100vh] fixed">
         <img 
           src="https://i.postimg.cc/m20zmy2V/qiu-chang02.png" 
           className="w-full h-full object-cover opacity-70 scale-105"
@@ -65,22 +100,38 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, o
         <span className="text-[10px] font-black italic tracking-widest text-white uppercase">排行榜</span>
       </button>
 
-      <div className="relative z-10 w-full pt-16 flex flex-col items-center">
+      {/* 內容區塊 - 移除品牌元素 */}
+      <div className="relative z-10 w-full pt-32 flex flex-col items-center">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="w-[90%] max-w-sm bg-slate-50/95 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl mb-12 border border-white/50"
         >
-          <div className="bg-blue-600 text-white px-6 py-1 rounded-full text-[10px] font-black tracking-[0.4em] uppercase shadow-lg inline-block mb-3">
-            2025 賽季
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <Zap className="w-6 h-6 text-emerald-600 fill-emerald-600" />
+            <h3 className="text-3xl font-black italic tracking-widest text-emerald-700 uppercase">遊戲規則</h3>
           </div>
-          <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            選擇你的球隊
-          </h2>
+
+          <div className="space-y-5">
+            {[
+              { id: 1, text: "選擇你的球隊" },
+              { id: 2, text: "點擊方向射門" },
+              { id: 3, text: "共有3次機會" },
+              { id: 4, text: "獲得最高分數！" }
+            ].map((rule) => (
+              <div key={rule.id} className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-black text-sm shadow-md">
+                  {rule.id}
+                </div>
+                <span className="text-lg font-bold text-slate-700 tracking-tight">{rule.text}</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
 
-      <div className="mt-auto relative z-20 w-full pb-16 flex flex-col">
+      <div className="relative z-20 w-full pb-16 flex flex-col">
         <div className="flex items-center justify-between px-8 mb-6">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em]">
@@ -101,7 +152,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, o
               )}
             </AnimatePresence>
           </div>
-          <Trophy className="w-4 h-4 text-yellow-500" />
+          <Zap className="w-4 h-4 text-yellow-500" />
         </div>
 
         <div className="relative w-full">
@@ -118,7 +169,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, o
                 key={team.id}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.05 }}
+                transition={{ delay: idx * 0.05 + 0.4 }}
                 className="flex-shrink-0 snap-center"
               >
                 <button
