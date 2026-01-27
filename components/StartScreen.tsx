@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Zap, ListOrdered, ChevronLeft, ChevronRight, Hand } from 'lucide-react';
 import { TEAMS } from '../constants';
@@ -8,13 +8,30 @@ import { Team } from '../types';
 interface StartScreenProps {
   onStart: (team: Team) => void;
   onShowLeaderboard: () => void;
+  onOpenBackstage: () => void;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard }) => {
+const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard, onOpenBackstage }) => {
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const lastClickTime = useRef<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 偵測是否已經滑動，若滑動過則隱藏手勢引導
+  const handleVersionClick = () => {
+    const now = Date.now();
+    if (now - lastClickTime.current > 2000) {
+      setClickCount(1);
+    } else {
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+      if (newCount >= 3) {
+        onOpenBackstage();
+        setClickCount(0);
+      }
+    }
+    lastClickTime.current = now;
+  };
+
   const handleScroll = () => {
     if (scrollRef.current && scrollRef.current.scrollLeft > 20) {
       setHasScrolled(true);
@@ -23,7 +40,14 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
 
   return (
     <div className="relative h-full w-full flex flex-col items-center bg-black overflow-hidden">
-      {/* 競技場背景 */}
+      {/* 版本標示與隱藏入口 */}
+      <div 
+        onClick={handleVersionClick}
+        className="absolute top-2 left-4 z-[100] text-[10px] font-mono text-white/30 p-2 cursor-pointer active:text-white/60 select-none"
+      >
+        footballdemo-v01.0126
+      </div>
+
       <div className="absolute inset-0 z-0">
         <img 
           src="https://i.postimg.cc/m20zmy2V/qiu-chang02.png" 
@@ -33,7 +57,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
       </div>
 
-      {/* 排行榜入口 */}
       <button 
         onClick={onShowLeaderboard}
         className="absolute top-6 right-6 z-40 p-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 active:scale-90 transition-transform flex items-center gap-2 shadow-2xl"
@@ -42,7 +65,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
         <span className="text-[10px] font-black italic tracking-widest text-white uppercase">排行榜</span>
       </button>
 
-      {/* 導引文字 */}
       <div className="relative z-10 w-full pt-16 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -58,7 +80,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
         </motion.div>
       </div>
 
-      {/* 球隊選擇區 */}
       <div className="mt-auto relative z-20 w-full pb-16 flex flex-col">
         <div className="flex items-center justify-between px-8 mb-6">
           <div className="flex items-center gap-2">
@@ -83,12 +104,10 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
           <Trophy className="w-4 h-4 text-yellow-500" />
         </div>
 
-        {/* 列表外層容器：加入側邊漸層暗示更多內容 */}
         <div className="relative w-full">
           <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/60 to-transparent z-30 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black/60 to-transparent z-30 pointer-events-none" />
 
-          {/* 水平捲動核心 */}
           <div 
             ref={scrollRef}
             onScroll={handleScroll}
@@ -106,14 +125,11 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
                   onClick={() => onStart(team)}
                   className="group relative flex flex-col items-center"
                 >
-                  {/* 徽章容器 */}
                   <div className={`relative w-44 h-44 rounded-full p-1 bg-gradient-to-br ${team.gradient} shadow-[0_15px_50px_rgba(0,0,0,0.8)] group-active:scale-95 transition-transform overflow-hidden border-2 border-white/20`}>
-                    {/* 背景裝飾 */}
                     <div className="absolute inset-0 opacity-40 mix-blend-overlay">
                       <img src={team.jerseyImage} className="w-full h-full object-cover" alt="" />
                     </div>
                     
-                    {/* 核心徽章 */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-7xl drop-shadow-2xl mb-1">{team.flagEmoji}</span>
                       <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
@@ -121,7 +137,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
                       </div>
                     </div>
 
-                    {/* 掃光特效 */}
                     <motion.div 
                       animate={{ left: ['-100%', '200%'] }}
                       transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -129,7 +144,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
                     />
                   </div>
 
-                  {/* 球隊資訊 */}
                   <div className="mt-5 text-center">
                     <div className="text-2xl font-black italic text-white uppercase tracking-tighter">{team.name}</div>
                     <div className="text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1 mt-1">
@@ -140,11 +154,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
                 </button>
               </motion.div>
             ))}
-            {/* 列表末尾填充空間，讓最後一個項目能置中 */}
             <div className="flex-shrink-0 w-12" />
           </div>
           
-          {/* 浮動箭頭指示器 */}
           <div className="absolute top-1/2 -translate-y-1/2 left-2 z-40 opacity-30 animate-pulse pointer-events-none">
             <ChevronLeft className="w-6 h-6 text-white" />
           </div>
@@ -153,7 +165,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
           </div>
         </div>
         
-        {/* 進度圓點 */}
         <div className="flex justify-center mt-4">
            <div className="flex gap-2">
               {TEAMS.map((_, i) => (
@@ -166,13 +177,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onShowLeaderboard })
       </div>
 
       <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
