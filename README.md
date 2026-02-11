@@ -6,7 +6,7 @@
 
 This contains everything you need to run your app locally.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1euzCH-T8pSHenEvBppEkkpOyBw_ivVHC
+View your app in AI Studio: https://football-shooting-challenge-1077748097087.us-west1.run.app
 
 ## Run Locally
 
