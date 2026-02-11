@@ -4,7 +4,7 @@
 
 Football Shooting Challenge — a branded, mobile-first football shooting game built with React and TypeScript. The UI is entirely in Traditional Chinese (繁體中文). Players select a national team, play a dual-role striker/goalie game, earn score-based prizes, and can redeem coupons with AI-generated player card images.
 
-Live app: https://ai.studio/apps/drive/1euzCH-T8pSHenEvBppEkkpOyBw_ivVHC
+Live app: https://football-shooting-challenge-1077748097087.us-west1.run.app
 
 ## Tech Stack
 
